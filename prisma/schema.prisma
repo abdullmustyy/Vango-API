@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Uses connection pooling
+  url       = env("POSTGRES_PRISMA_URL")
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  userName  String   @unique @default("")
+  email     String   @unique
+  image     String
+  password  String
+  vans      Vans[]
+  createdAt DateTime @default(now())
+}
+
+model Vans {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Int
+  type        String
+  imageUrl    String
+  hostId      String
+  host        User     @relation(fields: [hostId], references: [id])
+  createdAt   DateTime @default(now())
+}
