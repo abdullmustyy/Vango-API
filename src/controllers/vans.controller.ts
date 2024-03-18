@@ -1,21 +1,24 @@
 import { RequestHandler } from "express";
 import { PrismaClient } from "@prisma/client";
+import { InternalServerError } from "../utils/error.utils";
+import { ResponseHandler } from "../utils/response.utils";
 
 const { vans } = new PrismaClient();
 
 export const getAllVans: RequestHandler = async (req, res) => {
   try {
     const allVans = await vans.findMany();
-    res.json({ message: "All vans", allVans });
+
+    ResponseHandler.success(res, allVans, 200, "All vans fetched successfully");
   } catch (error) {
     console.error("Error: ", error);
-    res.status(500).json({ error: "Something went wrong" });
+    throw new InternalServerError("Something went wrong");
   }
 };
 
 export const createVan: RequestHandler = async (req, res) => {
   try {
-    const { name, description, price, type, imageUrl, hostId, host } = req.body;
+    const { name, description, price, type, imageUrl, hostId } = req.body;
     const newVan = await vans.create({
       data: {
         name,
@@ -26,9 +29,10 @@ export const createVan: RequestHandler = async (req, res) => {
         hostId,
       },
     });
-    res.json({ message: "Van created successfully", newVan });
+
+    ResponseHandler.success(res, newVan, 201, "Van created successfully");
   } catch (error) {
     console.error("Error: ", error);
-    res.status(500).json({ error: "Something went wrong" });
+    throw new InternalServerError("Something went wrong");
   }
 };
