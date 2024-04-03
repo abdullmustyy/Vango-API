@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
 import "dotenv/config";
 import { readdirSync } from "fs";
 
@@ -7,6 +8,7 @@ const app = express();
 //Logger
 app.use(morgan("tiny"));
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
