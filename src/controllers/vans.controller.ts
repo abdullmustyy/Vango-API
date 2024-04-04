@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { PrismaClient } from "@prisma/client";
-import { InternalServerError } from "../utils/error.utils";
+import { InternalServerError, NotFoundError } from "../utils/error.utils";
 import { ResponseHandler } from "../utils/response.utils";
 
 const { vans } = new PrismaClient();
@@ -10,6 +10,27 @@ export const getAllVans: RequestHandler = async (req, res) => {
     const allVans = await vans.findMany();
 
     ResponseHandler.success(res, allVans, 200, "All vans fetched successfully");
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new InternalServerError("Something went wrong");
+  }
+};
+
+export const getVan: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const van = await vans.findUnique({
+      where: {
+        id
+      },
+    });
+
+    if (!van) {
+      return new NotFoundError("Van not found");
+    }
+
+    ResponseHandler.success(res, van, 200, "Van fetched successfully");
   } catch (error) {
     console.error("Error: ", error);
     throw new InternalServerError("Something went wrong");
