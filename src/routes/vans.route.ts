@@ -14,9 +14,9 @@ vansRouter.get("/vans", getAllVans);
 // Get a van route
 vansRouter.get("/vans/:id", getVan);
 // Get vans by host id route
-vansRouter.get("/vans/host/:hostId", getHostVans);
+vansRouter.get("/host/:hostId/vans", getHostVans);
 // Get a van by host id and van id route
-vansRouter.get("/vans/host/:hostId/:vanId", getHostVan);
+vansRouter.get("/host/:hostId/vans/:vanId", getHostVan);
 // Create a van route
 vansRouter.post("/vans/create", createVan);
 
