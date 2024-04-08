@@ -1,14 +1,17 @@
 import { RequestHandler } from "express";
 import { PrismaClient } from "@prisma/client";
-import { InternalServerError, NotFoundError } from "../utils/error.utils";
-import { ResponseHandler } from "../utils/response.utils";
+import {
+  InternalServerError,
+  NotFoundError,
+} from "../middleware/error.middleware";
+import { ResponseHandler } from "../middleware/response.middleware";
 
-const { vans } = new PrismaClient();
+const { van } = new PrismaClient();
 
 // Get all vans
 export const getAllVans: RequestHandler = async (req, res) => {
   try {
-    const allVans = await vans.findMany();
+    const allVans = await van.findMany();
 
     ResponseHandler.success(
       res,
@@ -25,19 +28,19 @@ export const getAllVans: RequestHandler = async (req, res) => {
 // Get a van by id
 export const getVan: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { vanId } = req.params;
 
-    const van = await vans.findUnique({
+    const foundVan = await van.findUnique({
       where: {
-        id,
+        vanId,
       },
     });
 
-    if (!van) {
+    if (!foundVan) {
       return new NotFoundError("Van not found.");
     }
 
-    ResponseHandler.success(res, van, 200, "Van fetched successfully.");
+    ResponseHandler.success(res, foundVan, 200, "Van fetched successfully.");
   } catch (error) {
     console.error("Error: ", error);
     throw new InternalServerError("Something went wrong");
@@ -49,7 +52,7 @@ export const getHostVans: RequestHandler = async (req, res) => {
   try {
     const { hostId } = req.params;
 
-    const hostVans = await vans.findMany({
+    const hostVans = await van.findMany({
       where: {
         hostId,
       },
@@ -76,9 +79,9 @@ export const getHostVan: RequestHandler = async (req, res) => {
   try {
     const { hostId, vanId } = req.params;
 
-    const hostVan = await vans.findFirst({
+    const hostVan = await van.findFirst({
       where: {
-        id: vanId,
+        vanId,
         hostId,
       },
     });
@@ -98,7 +101,7 @@ export const getHostVan: RequestHandler = async (req, res) => {
 export const createVan: RequestHandler = async (req, res) => {
   try {
     const { name, description, price, type, imageUrl, hostId } = req.body;
-    const newVan = await vans.create({
+    const newVan = await van.create({
       data: {
         name,
         description,

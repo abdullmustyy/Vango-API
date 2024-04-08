@@ -12,24 +12,24 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  userId    String   @id @default(uuid())
   name      String
   userName  String   @unique @default("")
   email     String   @unique
   image     String
   password  String
-  vans      Vans[]
+  vans      Van[]
   createdAt DateTime @default(now())
 }
 
-model Vans {
-  id          String   @id @default(uuid())
+model Van {
+  vanId       String   @id @default(uuid())
   name        String
   description String
   price       Int
   type        String
   imageUrl    String
   hostId      String
-  host        User     @relation(fields: [hostId], references: [id])
+  host        User     @relation(fields: [hostId], references: [userId])
   createdAt   DateTime @default(now())
 }

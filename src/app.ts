@@ -11,6 +11,7 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.disable("x-powered-by");
 
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -18,7 +19,7 @@ app.get("/", (req, res) => {
 
 // Dynamically import all routes
 readdirSync("./src/routes").map((path) => {
-  app.use("/api/v1/", require(`./routes/${path}`));
+  app.use("/api/v1", require(`./routes/${path}`));
 });
 
 app.listen(process.env.PORT || 5000, () => {
