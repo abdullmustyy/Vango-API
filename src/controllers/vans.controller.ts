@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import {
   InternalServerError,
   NotFoundError,
-} from "../middleware/error.middleware";
-import { ResponseHandler } from "../middleware/response.middleware";
+} from "../middlewares/error.middleware";
+import { ResponseHandler } from "../middlewares/response.middleware";
 
 const { van } = new PrismaClient();
 

@@ -11,10 +11,17 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
+
 model User {
   userId    String   @id @default(uuid())
   name      String
-  userName  String   @unique @default("")
+  username  String   @unique
   email     String   @unique
   image     String
   password  String

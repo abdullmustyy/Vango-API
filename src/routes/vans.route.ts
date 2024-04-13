@@ -8,16 +8,16 @@ import {
   getHostVan,
 } from "../controllers/vans.controller";
 
-const vansRouter = Router();
+const vanRouter = Router();
 // Get all vans route
-vansRouter.get("/vans", getAllVans);
+vanRouter.get("/vans", getAllVans);
 // Get a van route
-vansRouter.get("/vans/:vanId", getVan);
+vanRouter.get("/vans/:vanId", getVan);
 // Get vans by host id route
-vansRouter.get("/host/:hostId/vans", getHostVans);
+vanRouter.get("/host/:hostId/vans", getHostVans);
 // Get a van by host id and van id route
-vansRouter.get("/host/:hostId/vans/:vanId", getHostVan);
+vanRouter.get("/host/:hostId/vans/:vanId", getHostVan);
 // Create a van route
-vansRouter.post("/vans/create", createVan);
+vanRouter.post("/vans/create", createVan);
 
-module.exports = vansRouter;
+module.exports = vanRouter;
