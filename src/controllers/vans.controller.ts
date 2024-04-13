@@ -19,9 +19,8 @@ export const getAllVans: RequestHandler = async (req, res) => {
       200,
       "All vans fetched successfully."
     );
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new InternalServerError("Something went wrong.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
@@ -41,9 +40,8 @@ export const getVan: RequestHandler = async (req, res) => {
     }
 
     ResponseHandler.success(res, foundVan, 200, "Van fetched successfully.");
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new InternalServerError("Something went wrong");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
@@ -68,9 +66,8 @@ export const getHostVans: RequestHandler = async (req, res) => {
       200,
       "Host vans fetched successfully"
     );
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new InternalServerError("Something went wrong.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
@@ -91,9 +88,8 @@ export const getHostVan: RequestHandler = async (req, res) => {
     }
 
     ResponseHandler.success(res, hostVan, 200, "Host van fetched successfully");
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new InternalServerError("Something went wrong.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
@@ -113,8 +109,7 @@ export const createVan: RequestHandler = async (req, res) => {
     });
 
     ResponseHandler.success(res, newVan, 201, "Van created successfully.");
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new InternalServerError("Something went wrong.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };

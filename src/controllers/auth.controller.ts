@@ -53,18 +53,45 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
 
 const register: RequestHandler = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    // Destructure the required fields from the request body
+    const { name, imageUrl, email, username, password } = req.body;
 
+    // Check if the username is already taken
+    const isUsernameTaken = await user.findUnique({ where: { username } });
+
+    // If the username is taken, throw an error
+    if (isUsernameTaken)
+      throw new BadRequestError(
+        `Username '${username}' is already taken, please choose another.`
+      );
+
+    // Check if the email already exists
+    const isEmailExists = await user.findUnique({ where: { email } });
+
+    // If the email exists, throw an error
+    if (isEmailExists)
+      throw new BadRequestError(
+        `A user with the email '${email}' already exist, log in instead.`
+      );
+
+    // Pass the password to the hashPassword function for hashing
     const hashedPasword = await hashPassword(password);
 
-    // const newUser = await user.create({
-    //   data: {
-    //     username,
-    //     password: hashedPasword,
-    //   },
-    // });
-  } catch (error) {
-    throw new InternalServerError("Something went wrong.");
+    // Create a new user
+    const newUser = await user.create({
+      data: {
+        name,
+        imageUrl,
+        email,
+        username,
+        password: hashedPasword,
+      },
+    });
+
+    // Send the new user in the response
+    ResponseHandler.success(res, newUser, 201, "User registered successfully.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
