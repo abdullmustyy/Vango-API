@@ -23,7 +23,7 @@ model User {
   name      String
   username  String   @unique
   email     String   @unique
-  imageUrl     String
+  imageUrl  String
   password  String
   vans      Van[]
   createdAt DateTime @default(now())

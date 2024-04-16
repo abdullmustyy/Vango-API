@@ -11,14 +11,9 @@ const { van } = new PrismaClient();
 // Get all vans
 export const getAllVans: RequestHandler = async (req, res) => {
   try {
-    const allVans = await van.findMany();
+    const vans = await van.findMany();
 
-    ResponseHandler.success(
-      res,
-      allVans,
-      200,
-      "All vans fetched successfully."
-    );
+    ResponseHandler.success(res, vans, 200, "All vans fetched successfully.");
   } catch (error: any) {
     ResponseHandler.error(res, error.statusCode, error.message);
   }
@@ -29,17 +24,17 @@ export const getVan: RequestHandler = async (req, res) => {
   try {
     const { vanId } = req.params;
 
-    const foundVan = await van.findUnique({
+    const vanDetail = await van.findUnique({
       where: {
         vanId,
       },
     });
 
-    if (!foundVan) {
+    if (!vanDetail) {
       return new NotFoundError("Van not found.");
     }
 
-    ResponseHandler.success(res, foundVan, 200, "Van fetched successfully.");
+    ResponseHandler.success(res, vanDetail, 200, "Van fetched successfully.");
   } catch (error: any) {
     ResponseHandler.error(res, error.statusCode, error.message);
   }

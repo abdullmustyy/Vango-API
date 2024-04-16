@@ -16,7 +16,7 @@ app.use(
       maxAge: 1 * 24 * 60 * 60 * 1000, // ms
     },
     secret:
-      process.env.PRISMA_STORE_SECRET ?? "worry not the env value was read",
+      process.env.PRISMA_STORE_SECRET ?? "worry not, the env value was read",
     resave: true,
     saveUninitialized: true,
     store: new PrismaSessionStore(new PrismaClient(), {

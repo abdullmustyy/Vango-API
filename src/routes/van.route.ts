@@ -6,7 +6,7 @@ import {
   getVan,
   getHostVans,
   getHostVan,
-} from "../controllers/vans.controller";
+} from "../controllers/van.controller";
 
 const vanRouter = Router();
 // Get all vans route

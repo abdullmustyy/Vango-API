@@ -46,8 +46,8 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
       200,
       "Image uploaded successfully."
     );
-  } catch (error) {
-    throw new InternalServerError("Something went wrong.");
+  } catch (error: any) {
+    ResponseHandler.error(res, error.statusCode, error.message);
   }
 };
 
@@ -71,7 +71,7 @@ const register: RequestHandler = async (req, res) => {
     // If the email exists, throw an error
     if (isEmailExists)
       throw new BadRequestError(
-        `A user with the email '${email}' already exist, log in instead.`
+        `A user with the email '${email}' already exists, log in instead.`
       );
 
     // Pass the password to the hashPassword function for hashing
@@ -85,6 +85,14 @@ const register: RequestHandler = async (req, res) => {
         email,
         username,
         password: hashedPasword,
+      },
+      select: {
+        userId: true,
+        name: true,
+        imageUrl: true,
+        email: true,
+        username: true,
+        createdAt: true,
       },
     });
 

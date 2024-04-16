@@ -17,7 +17,7 @@ class ResponseHandler {
     const responseObject: Record<string, any> = {
       success: false,
       status: statusCode,
-      error: message,
+      message: message,
       timestamp: new Date().toISOString(),
     };
 
