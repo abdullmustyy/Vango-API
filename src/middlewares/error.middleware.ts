@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 class CustomError extends Error {
-  statusCode: number;
-
-  constructor(name: string, message: string, statusCode?: number) {
+  constructor(name: string, message: string, public statusCode?: number) {
     super(message);
     this.name = name;
     this.statusCode = statusCode || 500;
@@ -19,12 +17,15 @@ function createCustomError(name: string, statusCode: number = 500) {
   };
 }
 
-const NotFoundError = createCustomError("NotFound Error", 404);
-const BadRequestError = createCustomError("BadRequest Error", 400);
+const NotFoundError = createCustomError("Not Found Error", 404);
+const BadRequestError = createCustomError("Bad Request Error", 400);
 const UnauthorizedError = createCustomError("Unauthorized Error", 401);
 const ForbiddenError = createCustomError("Forbidden Error", 403);
-const InternalServerError = createCustomError("Internal ServerError", 500);
-const MethodNotAllowedError = createCustomError("MethodNotAllowed Error", 405);
+const InternalServerError = createCustomError("Internal Server Error", 500);
+const MethodNotAllowedError = createCustomError(
+  "Method Not Allowed Error",
+  405
+);
 const ConflictError = createCustomError("Conflict Error", 409);
 const UnprocessableEntityError = createCustomError(
   "Unprocessable Entity Error",
@@ -44,12 +45,12 @@ const errorHandler = (
   }
 
   const errorResponse = {
-      success: false,
-      status: err.statusCode || 500,
-      message: err.message || "Something went wrong",
-      path: req.path,
-      error: err.name || "Internal Server Error",
-      timestamp: new Date().toISOString(),
+    success: false,
+    status: err.statusCode || 500,
+    message: err.message || err || "Something went wrong",
+    path: req.path,
+    error: err.name || "Internal Server Error",
+    timestamp: new Date().toISOString(),
   };
 
   res.status(errorResponse.status).json(errorResponse);

@@ -5,10 +5,24 @@ import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { PrismaClient } from "@prisma/client";
 import { readdirSync } from "fs";
+import passport from "./utils/configs/passport.config";
+import flash from "connect-flash";
+import { errorHandler } from "./middlewares/error.middleware";
+import "express-async-errors";
 import "dotenv/config";
-import passport from "./configs/passport.config";
 
 const app = express();
+// Dsaable x-powered-by header
+app.disable("x-powered-by");
+
+// Logger middleware
+app.use(morgan("dev"));
+
+// Data parsing and cors middlewares
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Session middleware
 app.use(
   session({
@@ -27,29 +41,31 @@ app.use(
   })
 );
 
-// Logger middleware
-app.use(morgan("tiny"));
-
-// Data parsing and cors middlewares
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Dsaable x-powered-by header
-app.disable("x-powered-by");
-
-app.get("/", (req, res) => {
-  res.send("Welcome to Vango API!");
+app.use((req, res, next) => {
+  console.log("Session: ", req.session);
+  console.log("User: ", req.user);
+  next();
 });
+
+// Flash middleware
+app.use(flash());
 
 // Dynamically import all routes
 readdirSync("./src/routes").map((path) => {
   app.use("/api/v1", require(`./routes/${path}`));
 });
+
+// Base route
+app.get("/", (req, res) => {
+  res.send("Welcome to Vango API!");
+});
+
+// Error handler middleware
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
