@@ -12,17 +12,6 @@ class ResponseHandler {
 
     res.status(statusCode).json(responseObject);
   }
-
-  static error(res: Response, statusCode = 500, message: string) {
-    const responseObject: Record<string, any> = {
-      success: false,
-      status: statusCode,
-      message: message,
-      timestamp: new Date().toISOString(),
-    };
-
-    res.status(statusCode).json(responseObject);
-  }
 }
 
 export { ResponseHandler };
