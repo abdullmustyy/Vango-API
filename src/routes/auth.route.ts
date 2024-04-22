@@ -38,31 +38,9 @@ authRouter.post("/auth/authenticate");
 // Signin user route
 authRouter.post(
   "/auth/signin",
-  // passport.authenticate("local", {
-  //   successRedirect: "/api/v1/login-success",
-  //   failureRedirect: "/api/v1/login-failure",
-  //   successFlash: "You successfully logged in.",
-  //   failureFlash: "You failed to log in.",
-  // })
-  (req, res, next) => {
-    passport.authenticate(
-      "local",
-      function (err: Error, user: any, info: any, status: any) {
-        if (err) {
-          return next(err);
-        }
-        if (!user) {
-          return next(new BadRequestError(info.message));
-        }
-        req.logIn(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-        });
-        next();
-      }
-    )(req, res, next);
-  },
+  passport.authenticate("local", {
+    failureMessage: "Invalid username or password.",
+  }),
   signin
 );
 

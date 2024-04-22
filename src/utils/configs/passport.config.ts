@@ -28,15 +28,39 @@ passport.use(
   })
 );
 
-passport.serializeUser((user: any, done) => {
-  done(null, user.userId);
+// passport.serializeUser((user: any, done) => {
+//   console.log("Serialize user: ", user);
+
+//   done(null, user.userId);
+// });
+
+// passport.deserializeUser((id: string, done) => {
+//   console.log("Deserialize user id: ", id);
+
+//   user
+//     .findUnique({ where: { userId: id } })
+//     .then((user) => done(null, user))
+//     .catch((error) => done(error));
+// });
+
+passport.serializeUser(function (user: any, done) {
+  console.log("Serialize user: ", user);
+
+  process.nextTick(function () {
+    return done(null, {
+      userId: user.userId,
+      username: user.username,
+      imageUrl: user.imageUrl,
+    });
+  });
 });
 
-passport.deserializeUser((id: string, done) => {
-  user
-    .findUnique({ where: { userId: id } })
-    .then((user) => done(null, user))
-    .catch((error) => done(error));
+passport.deserializeUser(function (user: any, done) {
+  console.log("Deserialize user: ", user);
+
+  process.nextTick(function () {
+    return done(null, user);
+  });
 });
 
 export default passport;

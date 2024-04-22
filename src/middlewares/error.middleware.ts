@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 
 class CustomError extends Error {
   constructor(name: string, message: string, public statusCode?: number) {
@@ -40,10 +41,6 @@ const errorHandler = (
 ) => {
   console.error("An error occurred:", err);
 
-  if (res.headersSent) {
-    return next(err);
-  }
-
   const errorResponse = {
     success: false,
     status: err.statusCode || 500,
@@ -52,6 +49,28 @@ const errorHandler = (
     error: err.name || "Internal Server Error",
     timestamp: new Date().toISOString(),
   };
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    const prismaResponse = {
+      ...errorResponse,
+    };
+
+    return res.status(prismaResponse.status || 500).json(prismaResponse);
+  }
+
+  // if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  //   const prismaError = new CustomError(
+  //     "Prisma Client Known Request Error",
+  //     err.message,
+  //     500
+  //   );
+
+  //   return res.status(prismaError.statusCode || 500).json(prismaError);
+  // }
 
   res.status(errorResponse.status).json(errorResponse);
 };

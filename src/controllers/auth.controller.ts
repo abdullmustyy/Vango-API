@@ -100,6 +100,9 @@ const signin: RequestHandler = async (req, res) => {
   if (!user)
     throw new NotFoundError("An error occurred while signing the user in.");
 
+  console.log("Session from auth: ", req.session);
+  console.log("User from auth: ", req.user);
+
   const { userId, name, username, email, imageUrl, createdAt } = user as IUser;
 
   ResponseHandler.success(
@@ -113,7 +116,7 @@ const signin: RequestHandler = async (req, res) => {
       createdAt,
     },
     200,
-    "User signed in successfully."
+    `${username} signed in successfully.`
   );
 };
 
