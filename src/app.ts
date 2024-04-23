@@ -1,13 +1,19 @@
 import express from "express";
-import morgan from "morgan";
-import cors from "cors";
 import session from "express-session";
-import flash from "connect-flash";
+
 import { readdirSync } from "fs";
+
+import cors from "cors";
+import morgan from "morgan";
+import flash from "connect-flash";
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
+
 import { errorHandler } from "./middlewares/error.middleware";
+
 import passport from "./utils/configs/passport.config";
+
 import "express-async-errors";
 import "dotenv/config";
 

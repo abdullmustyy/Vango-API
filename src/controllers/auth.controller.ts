@@ -1,15 +1,19 @@
 import { RequestHandler } from "express";
+
+import { unlink } from "fs";
+
 import { PrismaClient } from "@prisma/client";
+
 import {
   BadRequestError,
   InternalServerError,
   NotFoundError,
 } from "../middlewares/error.middleware";
 import { ResponseHandler } from "../middlewares/response.middleware";
+
 import { hashPassword } from "../utils/auth.util";
-import { cloudinary } from "../utils/configs/cloudinary.config";
-import { unlink } from "fs";
 import { IUser } from "../utils/interfaces/user.interface";
+import { cloudinary } from "../utils/configs/cloudinary.config";
 
 const { user } = new PrismaClient();
 

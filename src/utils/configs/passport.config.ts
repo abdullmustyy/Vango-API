@@ -1,10 +1,40 @@
+import { PrismaClient } from "@prisma/client";
+
+import fs from "fs";
+
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { PrismaClient } from "@prisma/client";
-import { IUser } from "../interfaces/user.interface";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { Algorithm } from "jsonwebtoken";
+
 import { comparePassword } from "../auth.util";
+import { IUser } from "../interfaces/user.interface";
 
 const { user } = new PrismaClient();
+
+const PUB_KEY = fs.readFileSync("/pub.pem", "utf8");
+
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: PUB_KEY,
+  algorithms: ["RS256"] as Algorithm[],
+};
+
+passport.use(
+  new JwtStrategy(options, async (payload, done) => {
+    try {
+      const isUser = await user.findUnique({ where: { userId: payload.sub } });
+
+      if (!isUser) {
+        return done(null, false);
+      }
+
+      return done(null, isUser);
+    } catch (error) {
+      done(error, false);
+    }
+  })
+);
 
 passport.use(
   new LocalStrategy(async function verify(username, password, done) {
@@ -23,7 +53,7 @@ passport.use(
 
       return done(null, isUser);
     } catch (error) {
-      done(error);
+      done(error, false);
     }
   })
 );

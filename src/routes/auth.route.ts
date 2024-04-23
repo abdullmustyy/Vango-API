@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   createResetSession,
   generateOTP,
@@ -8,8 +9,10 @@ import {
   uploadProfileImage,
   verifyOTP,
 } from "../controllers/auth.controller";
+
 import { upload } from "../utils/configs/multer.config";
 import passport from "../utils/configs/passport.config";
+
 import { BadRequestError } from "../middlewares/error.middleware";
 
 const authRouter = Router();
