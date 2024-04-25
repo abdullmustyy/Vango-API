@@ -2,26 +2,21 @@ import { Router } from "express";
 
 import {
   createResetSession,
-  generateOTP,
-  signin,
-  signup,
+  signIn,
+  signUp,
   resetPassword,
   uploadProfileImage,
-  verifyOTP,
+  verifyEmailAndOtp,
 } from "../controllers/auth.controller";
 
-import { upload } from "../utils/configs/multer.config";
-import passport from "../utils/configs/passport.config";
+import { isAuth } from "../middlewares/auth.middleware";
 
-import { BadRequestError } from "../middlewares/error.middleware";
+import { upload } from "../utils/configs/multer.config";
 
 const authRouter = Router();
 
 // Generate OTP route for authentication
-authRouter.get("/auth/generate-otp", generateOTP);
-
-// Verify OTP route for authentication
-authRouter.get("/auth/verify-otp", verifyOTP);
+authRouter.get("/auth/generate-otp");
 
 // Create session for logged in user
 authRouter.get("/auth/create-reset-session", createResetSession);
@@ -30,7 +25,10 @@ authRouter.get("/auth/create-reset-session", createResetSession);
 authRouter.post("/upload-image", upload.single("image"), uploadProfileImage);
 
 // Signup user route
-authRouter.post("/auth/signup", signup);
+authRouter.post("/auth/signup", signUp);
+
+// Verify OTP route for authentication
+authRouter.post("/auth/verify", verifyEmailAndOtp);
 
 // Register user with email route
 authRouter.post("/auth/register-mail");
@@ -39,20 +37,7 @@ authRouter.post("/auth/register-mail");
 authRouter.post("/auth/authenticate");
 
 // Signin user route
-authRouter.post(
-  "/auth/signin",
-  passport.authenticate("local", {
-    failureMessage: "Invalid username or password.",
-  }),
-  signin
-);
-
-authRouter.get("/login-success", (req, res, next) => {
-  res.send("You successfully logged in.");
-});
-authRouter.get("/login-failure", (req, res, next) => {
-  res.send("You failed to log in.");
-});
+authRouter.post("/auth/signin", isAuth, signIn);
 
 // Reset password route
 authRouter.put("/auth/reset-password", resetPassword);

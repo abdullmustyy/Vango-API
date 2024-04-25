@@ -27,6 +27,15 @@ model User {
   password  String
   vans      Van[]
   createdAt DateTime @default(now())
+  otp       Otp?
+}
+
+model Otp {
+  userId String @id
+  otp    String @unique
+  expiry DateTime
+  createdAt DateTime @default(now())
+  user   User   @relation(fields: [userId], references: [userId])
 }
 
 model Van {

@@ -132,3 +132,4 @@ dist
 
 # Private key
 priv.pem
+pub.pem

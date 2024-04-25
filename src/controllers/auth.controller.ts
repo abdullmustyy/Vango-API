@@ -11,11 +11,18 @@ import {
 } from "../middlewares/error.middleware";
 import { ResponseHandler } from "../middlewares/response.middleware";
 
-import { hashPassword } from "../utils/auth.util";
+import { sendOtpToMail } from "../services/email.service";
+
+import {
+  comparePassword,
+  hashPassword,
+  generateOtp,
+  issueJwt,
+} from "../utils/auth.util";
 import { IUser } from "../utils/interfaces/user.interface";
 import { cloudinary } from "../utils/configs/cloudinary.config";
 
-const { user } = new PrismaClient();
+const { user, otp } = new PrismaClient();
 
 const uploadProfileImage: RequestHandler = async (req, res) => {
   // Destructure the path from the file object
@@ -41,7 +48,6 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
       throw new BadRequestError("An error occurred while deleting the image.");
   });
 
-  // Send the image URL in the response
   ResponseHandler.success(
     res,
     { imageUrl },
@@ -50,7 +56,7 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
   );
 };
 
-const signup: RequestHandler = async (req, res) => {
+const signUp: RequestHandler = async (req, res) => {
   // Destructure the required fields from the request body
   const { name, imageUrl, email, username, password } = req.body;
 
@@ -86,57 +92,120 @@ const signup: RequestHandler = async (req, res) => {
     },
     select: {
       userId: true,
-      name: true,
-      imageUrl: true,
       email: true,
       username: true,
-      createdAt: true,
     },
   });
 
-  // Send the new user in the response
-  ResponseHandler.success(res, newUser, 201, "User registered successfully.");
-};
+  // Generate a random 6-digit OTP
+  const newOtp = generateOtp();
 
-const signin: RequestHandler = async (req, res) => {
-  const { user } = req;
+  // Store the OTP for the user
+  await otp.create({
+    data: {
+      userId: newUser.userId,
+      otp: newOtp,
+      expiry: new Date(Date.now() + 60000),
+    },
+  });
 
-  if (!user)
-    throw new NotFoundError("An error occurred while signing the user in.");
-
-  console.log("Session from auth: ", req.session);
-  console.log("User from auth: ", req.user);
-
-  const { userId, name, username, email, imageUrl, createdAt } = user as IUser;
+  // Send the OTP to the user's email
+  sendOtpToMail({
+    to: email,
+    subject: "Vango - One Time Password (OTP)",
+    otp: newOtp,
+    name: name.split(" ")[0],
+  });
 
   ResponseHandler.success(
     res,
-    {
-      userId,
-      name,
-      username,
-      email,
-      imageUrl,
-      createdAt,
-    },
-    200,
-    `${username} signed in successfully.`
+    newUser,
+    201,
+    "User signed up successfully, an OTP has been sent to your email."
   );
 };
 
-const generateOTP: RequestHandler = async (req, res) => {};
+const verifyEmailAndOtp: RequestHandler = async (req, res) => {
+  // Destructure the email and OTP from the request body
+  const { email, otp: verifyOtp } = req.body;
 
-const verifyOTP: RequestHandler = async (req, res) => {};
+  // Check if the user exists
+  const isUser = await user.findUnique({
+    where: { email },
+    select: {
+      userId: true,
+      email: true,
+      username: true,
+    },
+  });
+
+  // If the user does not exist, throw an error
+  if (!isUser) throw new NotFoundError("User not found.");
+
+  // Check if the OTP is valid
+  const isOtpValid = await otp.delete({
+    where: { userId: isUser.userId, otp: verifyOtp },
+  });
+
+  // If the OTP is invalid, throw an error
+  if (!isOtpValid)
+    throw new BadRequestError("You have entered an invalid OTP.");
+
+  // Issue a new JWT token for the user
+  const accessToken = issueJwt(isUser);
+
+  ResponseHandler.success(
+    res,
+    { ...isUser, accessToken },
+    200,
+    "Email and OTP verified successfully."
+  );
+};
+
+const signIn: RequestHandler = async (req, res) => {
+  // Destructure the usernameOrEmail and password from the request body
+  const { usernameOrEmail, password } = req.body;
+
+  // Check if the user exists
+  const isUser = await user.findFirst({
+    where: {
+      OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }],
+    },
+  });
+
+  // If the user does not exist, throw an error
+  if (!isUser)
+    throw new NotFoundError("User not found, please sign up instead.");
+
+  // Check if the password is valid
+  const isValidPassword = comparePassword(password, isUser.password);
+
+  // If the password is invalid, throw an error
+  if (!isValidPassword)
+    throw new BadRequestError("Invalid username or password.");
+
+  // Issue a new JWT token for the user
+  const accessToken = issueJwt(isUser);
+
+  // Remove the password from the user object
+  const { password: _, ...userWithoutPassword } = isUser;
+
+  ResponseHandler.success(
+    res,
+    { ...userWithoutPassword, accessToken },
+    200,
+    "User signed in successfully."
+  );
+};
 
 const createResetSession: RequestHandler = async (req, res) => {};
 
 const resetPassword: RequestHandler = async (req, res) => {};
 
 export {
-  signin,
-  signup,
-  generateOTP,
-  verifyOTP,
+  signIn,
+  signUp,
+  verifyEmailAndOtp,
   createResetSession,
   resetPassword,
   uploadProfileImage,

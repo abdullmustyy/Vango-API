@@ -1,5 +1,5 @@
 import express from "express";
-import session from "express-session";
+// import session from "express-session";
 
 import { readdirSync } from "fs";
 
@@ -7,12 +7,12 @@ import cors from "cors";
 import morgan from "morgan";
 import flash from "connect-flash";
 
-import { PrismaClient } from "@prisma/client";
-import { PrismaSessionStore } from "@quixo3/prisma-session-store";
+// import { PrismaClient } from "@prisma/client";
+// import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 
 import { errorHandler } from "./middlewares/error.middleware";
 
-import passport from "./utils/configs/passport.config";
+// import passport from "./utils/configs/passport.config";
 
 import "express-async-errors";
 import "dotenv/config";
@@ -30,31 +30,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session middleware
-app.use(
-  session({
-    cookie: {
-      maxAge: 1 * 24 * 60 * 60 * 1000, // ms
-    },
-    secret:
-      process.env.PRISMA_STORE_SECRET ?? "worry not, the env value was read",
-    resave: true,
-    saveUninitialized: true,
-    store: new PrismaSessionStore(new PrismaClient(), {
-      checkPeriod: 2 * 60 * 1000, //ms
-      dbRecordIdIsSessionId: true,
-      dbRecordIdFunction: undefined,
-    }),
-  })
-);
+// app.use(
+//   session({
+//     cookie: {
+//       maxAge: 1 * 24 * 60 * 60 * 1000, // ms
+//     },
+//     secret:
+//       process.env.PRISMA_STORE_SECRET ?? "worry not, the env value was read",
+//     resave: true,
+//     saveUninitialized: true,
+//     store: new PrismaSessionStore(new PrismaClient(), {
+//       checkPeriod: 2 * 60 * 1000, //ms
+//       dbRecordIdIsSessionId: true,
+//       dbRecordIdFunction: undefined,
+//     }),
+//   })
+// );
 
 // Passport middleware
-app.use(passport.authenticate("session"));
-
-app.use((req, res, next) => {
-  console.log("Session: ", req.session);
-  console.log("User: ", req.user);
-  next();
-});
+// app.use(passport.authenticate("session"));
 
 // Flash middleware
 app.use(flash());
