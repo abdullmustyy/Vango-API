@@ -14,11 +14,16 @@ export const isAuth: RequestHandler = (req, res, next) => {
       if (err) {
         return next(err);
       }
+
       if (!user) {
         return next(
-          new UnauthorizedError("You are not authorized to access this resource.")
+          new UnauthorizedError(
+            "You are not authorized to access this resource."
+          )
         );
       }
+
+      req.user = user;
 
       next();
     }

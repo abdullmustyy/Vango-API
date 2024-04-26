@@ -162,9 +162,9 @@ const verifyEmailAndOtp: RequestHandler = async (req, res) => {
   );
 };
 
-const signIn: RequestHandler = async (req, res) => {
+const signIn: RequestHandler = async ({ body, user: jwtUser }, res) => {
   // Destructure the usernameOrEmail and password from the request body
-  const { usernameOrEmail, password } = req.body;
+  const { usernameOrEmail, password } = body;
 
   // Check if the user exists
   const isUser = await user.findFirst({
@@ -187,12 +187,9 @@ const signIn: RequestHandler = async (req, res) => {
   // Issue a new JWT token for the user
   const accessToken = issueJwt(isUser);
 
-  // Remove the password from the user object
-  const { password: _, ...userWithoutPassword } = isUser;
-
   ResponseHandler.success(
     res,
-    { ...userWithoutPassword, accessToken },
+    { ...jwtUser, accessToken },
     200,
     "User signed in successfully."
   );

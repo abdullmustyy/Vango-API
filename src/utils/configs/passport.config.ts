@@ -27,9 +27,16 @@ passport.use(
         });
       }
 
-      return done(null, isUser, {
-        message: "User authenticated successfully.",
-      });
+      const { password, createdAt, imageUrl, ...userDetails } = isUser;
+      const { exp } = payload;
+
+      return done(
+        null,
+        { ...userDetails, exp },
+        {
+          message: "User authenticated successfully.",
+        }
+      );
     } catch (error) {
       done(error, false, { message: "Unauthorized request." });
     }
