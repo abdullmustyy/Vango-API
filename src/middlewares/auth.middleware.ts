@@ -18,7 +18,7 @@ export const isAuth: RequestHandler = (req, res, next) => {
       if (!user) {
         return next(
           new UnauthorizedError(
-            "You are not authorized to access this resource."
+            "You are not authorized to access this resource, have you signed up?"
           )
         );
       }

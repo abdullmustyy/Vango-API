@@ -1,7 +1,12 @@
 import nodemailer from "nodemailer";
 
-const { NODEMAILER_SERVICE, NODEMAILER_USER, NODEMAILER_APP_PASSWORD } =
-  process.env;
+const {
+  NODEMAILER_SERVICE,
+  NODEMAILER_USER,
+  NODEMAILER_APP_PASSWORD,
+  NODEMAILER_HOST,
+  NODEMAILER_PORT,
+} = process.env;
 
 const generateEmailTemplate = (otp: string, name: string) => `
 <!DOCTYPE html>
@@ -57,6 +62,8 @@ const generateEmailTemplate = (otp: string, name: string) => `
 
 const transporter = nodemailer.createTransport({
   service: NODEMAILER_SERVICE,
+  host: NODEMAILER_HOST,
+  port: parseInt(NODEMAILER_PORT ?? "465"),
   auth: {
     user: NODEMAILER_USER,
     pass: NODEMAILER_APP_PASSWORD,
