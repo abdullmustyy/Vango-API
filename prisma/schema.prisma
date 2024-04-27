@@ -19,23 +19,26 @@ model Session {
 }
 
 model User {
-  userId    String   @id @default(uuid())
-  name      String
-  username  String   @unique
-  email     String   @unique
-  imageUrl  String
-  password  String
-  vans      Van[]
-  createdAt DateTime @default(now())
-  otp       Otp?
+  userId          String   @id @default(uuid())
+  name            String
+  username        String   @unique
+  email           String   @unique
+  imageUrl        String
+  password        String
+  isEmailVerified Boolean @default(false)
+  createdAt       DateTime @default(now())
+
+  vans Van[]
+  otp  Otp?
 }
 
 model Otp {
-  userId String @id
-  otp    String @unique
-  expiry DateTime
+  userId    String   @id
+  otp       String   @unique
+  expiry    DateTime
   createdAt DateTime @default(now())
-  user   User   @relation(fields: [userId], references: [userId])
+
+  user User @relation(fields: [userId], references: [userId])
 }
 
 model Van {
@@ -46,6 +49,7 @@ model Van {
   type        String
   imageUrl    String
   hostId      String
-  host        User     @relation(fields: [hostId], references: [userId])
   createdAt   DateTime @default(now())
+
+  host User @relation(fields: [hostId], references: [userId])
 }

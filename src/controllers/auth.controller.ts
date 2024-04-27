@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 
 import { unlink } from "fs";
+import moment from "moment";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -33,7 +34,7 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
 
   // Upload the image to cloudinary
   const uploadedImage = await cloudinary.uploader.upload(path, {
-    folder: "Vango",
+    folder: "Vango/profile-images",
     use_filename: true,
     unique_filename: false,
     overwrite: true,
@@ -105,7 +106,7 @@ const signUp: RequestHandler = async (req, res) => {
     data: {
       userId: newUser.userId,
       otp: newOtp,
-      expiry: new Date(Date.now() + 60000),
+      expiry: new Date(Date.now() + 120000),
     },
   });
 
@@ -151,18 +152,76 @@ const verifyEmailAndOtp: RequestHandler = async (req, res) => {
   if (!isOtpValid)
     throw new BadRequestError("You have entered an invalid OTP.");
 
+  // Check if the OTP has expired, and if it has, throw an error
+  const { expiry } = isOtpValid;
+  const isOtpExpired = moment().isAfter(expiry);
+
+  if (isOtpExpired)
+    throw new BadRequestError("The OTP has expired, please request a new one.");
+
   // Issue a new JWT token for the user
-  const accessToken = issueJwt(isUser);
+  const { accessToken, exp } = issueJwt(isUser);
+
+  // Update the user's email verification status
+  await user.update({
+    where: { email },
+    data: { isEmailVerified: true },
+  });
 
   ResponseHandler.success(
     res,
-    { ...isUser, accessToken },
+    { ...isUser, accessToken, exp },
     200,
     "Email and OTP verified successfully."
   );
 };
 
-const signIn: RequestHandler = async ({ body, user: jwtUser }, res) => {
+const resendOtp: RequestHandler = async (req, res) => {
+  // Destructure the email from the request body
+  const { email } = req.body;
+
+  // Check if the user exists
+  const isUser = await user.findUnique({
+    where: { email },
+    select: {
+      userId: true,
+      email: true,
+      username: true,
+    },
+  });
+
+  // If the user does not exist, throw an error
+  if (!isUser) throw new NotFoundError("User not found.");
+
+  // Generate a new OTP
+  const newOtp = generateOtp();
+
+  // Store the OTP for the user
+  await otp.create({
+    data: {
+      userId: isUser.userId,
+      otp: newOtp,
+      expiry: new Date(Date.now() + 120000),
+    },
+  });
+
+  // Send the OTP to the user's email
+  sendOtpToMail({
+    to: email,
+    subject: "Vango - One Time Password (OTP)",
+    otp: newOtp,
+    name: isUser.username.split(" ")[0],
+  });
+
+  ResponseHandler.success(
+    res,
+    {},
+    200,
+    "A new OTP has been sent to your email."
+  );
+};
+
+const signIn: RequestHandler = async ({ body }, res) => {
   // Destructure the usernameOrEmail and password from the request body
   const { usernameOrEmail, password } = body;
 
@@ -184,12 +243,27 @@ const signIn: RequestHandler = async ({ body, user: jwtUser }, res) => {
   if (!isValidPassword)
     throw new BadRequestError("Invalid username or password.");
 
+  // Check if the user has verified their email
+  if (!isUser.isEmailVerified)
+    throw new BadRequestError(
+      "You have not verified your email, please check your email for the OTP."
+    );
+
   // Issue a new JWT token for the user
-  const accessToken = issueJwt(isUser);
+  const { accessToken, exp } = issueJwt(isUser);
+
+  const {
+    password: _,
+    username,
+    imageUrl,
+    isEmailVerified,
+    createdAt,
+    ...userResponse
+  } = isUser;
 
   ResponseHandler.success(
     res,
-    { ...jwtUser, accessToken },
+    { ...userResponse, accessToken, exp },
     200,
     "User signed in successfully."
   );
@@ -203,6 +277,7 @@ export {
   signIn,
   signUp,
   verifyEmailAndOtp,
+  resendOtp,
   createResetSession,
   resetPassword,
   uploadProfileImage,

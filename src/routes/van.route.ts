@@ -7,6 +7,7 @@ import {
   getHostVans,
   getHostVan,
 } from "../controllers/van.controller";
+import { isAuth } from "../middlewares/auth.middleware";
 
 const vanRouter = Router();
 // Get all vans route
@@ -14,7 +15,7 @@ vanRouter.get("/vans", getAllVans);
 // Get a van route
 vanRouter.get("/vans/:vanId", getVan);
 // Get vans by host id route
-vanRouter.get("/host/:hostId/vans", getHostVans);
+vanRouter.get("/host/:hostId/vans", isAuth, getHostVans);
 // Get a van by host id and van id route
 vanRouter.get("/host/:hostId/vans/:vanId", getHostVan);
 // Create a van route

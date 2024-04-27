@@ -23,7 +23,7 @@ export const isAuth: RequestHandler = (req, res, next) => {
         );
       }
 
-      req.user = user;
+      // req.user = user;
 
       next();
     }

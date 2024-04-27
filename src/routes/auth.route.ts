@@ -7,6 +7,7 @@ import {
   resetPassword,
   uploadProfileImage,
   verifyEmailAndOtp,
+  resendOtp,
 } from "../controllers/auth.controller";
 
 import { isAuth } from "../middlewares/auth.middleware";
@@ -14,9 +15,6 @@ import { isAuth } from "../middlewares/auth.middleware";
 import { upload } from "../utils/configs/multer.config";
 
 const authRouter = Router();
-
-// Generate OTP route for authentication
-authRouter.get("/auth/generate-otp");
 
 // Create session for logged in user
 authRouter.get("/auth/create-reset-session", createResetSession);
@@ -28,16 +26,13 @@ authRouter.post("/upload-image", upload.single("image"), uploadProfileImage);
 authRouter.post("/auth/signup", signUp);
 
 // Verify OTP route for authentication
-authRouter.post("/auth/verify", verifyEmailAndOtp);
+authRouter.post("/auth/otp/verify", verifyEmailAndOtp);
 
-// Register user with email route
-authRouter.post("/auth/register-mail");
-
-// Authenticate user route
-authRouter.post("/auth/authenticate");
+// Resend OTP route for authentication
+authRouter.post("/auth/otp/resend", resendOtp);
 
 // Signin user route
-authRouter.post("/auth/signin", isAuth, signIn);
+authRouter.post("/auth/signin", signIn);
 
 // Reset password route
 authRouter.put("/auth/reset-password", resetPassword);

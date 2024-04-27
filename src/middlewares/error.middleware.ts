@@ -34,7 +34,7 @@ const UnprocessableEntityError = createCustomError(
 );
 
 const errorHandler = (
-  err: CustomError,
+  err: CustomError | Prisma.PrismaClientKnownRequestError,
   req: Request,
   res: Response,
   next: NextFunction
@@ -43,7 +43,7 @@ const errorHandler = (
 
   const errorResponse = {
     success: false,
-    status: err.statusCode || 500,
+    status: err instanceof CustomError ? err.statusCode || 500 : 500,
     message: err.message || err || "Something went wrong",
     path: req.path,
     error: err.name || "Internal Server Error",
@@ -55,22 +55,42 @@ const errorHandler = (
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    const prismaResponse = {
-      ...errorResponse,
-    };
+    if (err.code === "P2025") {
+      const errorCause = err.meta && (err.meta.cause as string);
 
-    return res.status(prismaResponse.status || 500).json(prismaResponse);
+      const notFoundError = new NotFoundError(
+        errorCause || "Resource not found."
+      );
+
+      const notFoundErrorResponse = {
+        ...errorResponse,
+        status: notFoundError.statusCode || 500,
+        message: notFoundError.message,
+        error: notFoundError.name,
+      };
+
+      if (err.meta && err.meta.modelName === "Otp") {
+        const otpError = new NotFoundError("The OTP provided is invalid.");
+
+        const otpErrorResponse = {
+          ...errorResponse,
+          status: otpError.statusCode || 500,
+          message: otpError.message,
+          error: otpError.name,
+        };
+
+        return res
+          .status(otpErrorResponse.status || 500)
+          .json(otpErrorResponse);
+      }
+
+      return res
+        .status(notFoundErrorResponse.status)
+        .json(notFoundErrorResponse);
+    }
+
+    return res.status(errorResponse.status || 500).json(errorResponse);
   }
-
-  // if (err instanceof Prisma.PrismaClientKnownRequestError) {
-  //   const prismaError = new CustomError(
-  //     "Prisma Client Known Request Error",
-  //     err.message,
-  //     500
-  //   );
-
-  //   return res.status(prismaError.statusCode || 500).json(prismaError);
-  // }
 
   res.status(errorResponse.status).json(errorResponse);
 };

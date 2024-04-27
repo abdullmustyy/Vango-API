@@ -40,5 +40,5 @@ export const issueJwt = (user: {
     algorithm: JWT_ALGORITHM,
   });
 
-  return token;
+  return { accessToken: token, exp: JWT_EXPIRATION };
 };
