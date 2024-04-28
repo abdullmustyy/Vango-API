@@ -210,7 +210,7 @@ const resendOtp: RequestHandler = async (req, res) => {
     to: email,
     subject: "Vango - One Time Password (OTP)",
     otp: newOtp,
-    name: isUser.username.split(" ")[0],
+    name: isUser.name.split(" ")[0],
   });
 
   ResponseHandler.success(
