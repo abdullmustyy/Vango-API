@@ -11,6 +11,13 @@ import {
 } from "../controllers/auth.controller";
 
 import { isAuth } from "../middlewares/auth.middleware";
+import { checkValidity } from "../middlewares/error.middleware";
+import {
+  resendOtpSchema,
+  signInSchema,
+  signUpSchema,
+  verifyEmailAndOtpSchema,
+} from "../middlewares/validations/auth.validation";
 
 import { upload } from "../utils/configs/multer.config";
 
@@ -23,16 +30,20 @@ authRouter.get("/auth/create-reset-session", createResetSession);
 authRouter.post("/upload-image", upload.single("image"), uploadProfileImage);
 
 // Signup user route
-authRouter.post("/auth/signup", signUp);
+authRouter.post("/auth/signup", checkValidity(signUpSchema), signUp);
 
 // Verify OTP route for authentication
-authRouter.post("/auth/otp/verify", verifyEmailAndOtp);
+authRouter.post(
+  "/auth/otp/verify",
+  checkValidity(verifyEmailAndOtpSchema),
+  verifyEmailAndOtp
+);
 
 // Resend OTP route for authentication
-authRouter.post("/auth/otp/resend", resendOtp);
+authRouter.post("/auth/otp/resend", checkValidity(resendOtpSchema), resendOtp);
 
 // Signin user route
-authRouter.post("/auth/signin", signIn);
+authRouter.post("/auth/signin", checkValidity(signInSchema), signIn);
 
 // Reset password route
 authRouter.put("/auth/reset-password", resetPassword);

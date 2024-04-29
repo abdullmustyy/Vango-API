@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 
+import { AnyZodObject } from "zod";
+import { fromError } from "zod-validation-error";
+
 class CustomError extends Error {
   constructor(name: string, message: string, public statusCode?: number) {
     super(message);
@@ -95,6 +98,31 @@ const errorHandler = (
   res.status(errorResponse.status).json(errorResponse);
 };
 
+const checkValidity = (schema: AnyZodObject) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await schema.parseAsync({
+        body: req.body,
+        query: req.query,
+        params: req.params,
+      });
+
+      next();
+    } catch (error) {
+      const errorResponse = {
+        success: false,
+        status: 400,
+        message: "Validation failed.",
+        path: req.path,
+        error: fromError(error).toString(),
+        timestamp: new Date().toISOString(),
+      };
+
+      res.status(400).json(errorResponse);
+    }
+  };
+};
+
 export {
   CustomError,
   NotFoundError,
@@ -106,4 +134,5 @@ export {
   UnprocessableEntityError,
   ConflictError,
   errorHandler,
+  checkValidity,
 };
