@@ -69,7 +69,10 @@ export const getHostVan: RequestHandler = async (req, res) => {
 
 // Create a van
 export const createVan: RequestHandler = async (req, res) => {
+  // Get the data from the request body
   const { name, description, price, type, imageUrl, hostId } = req.body;
+
+  // Create a new van
   const newVan = await van.create({
     data: {
       name,

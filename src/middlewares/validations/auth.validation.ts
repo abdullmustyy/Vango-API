@@ -7,35 +7,35 @@ export const signUpSchema = z.object({
         required_error: "Please provide a name to sign up.",
         invalid_type_error: "Name must be a string.",
       })
+      .trim()
       .min(5, { message: "Name must have at least 5 characters." })
-      .max(50, { message: "Name must have at most 50 characters." })
-      .trim(),
+      .max(50, { message: "Name must have at most 50 characters." }),
     imageUrl: z
       .string({
         required_error: "Please provide an image URL to sign up.",
         invalid_type_error: "Image URL must be a string.",
       })
-      .url({ message: "Please provide a valid image URL." })
-      .trim(),
+      .trim()
+      .url({ message: "Please provide a valid image URL." }),
     email: z
       .string({
         required_error: "Please provide an email to sign up.",
         invalid_type_error: "Email must be a string.",
       })
-      .email({ message: "Please provide a valid email." })
-      .trim(),
+      .trim()
+      .email({ message: "Please provide a valid email." }),
     username: z
       .string({
         required_error: "Please provide a username to sign up.",
         invalid_type_error: "Username must be a string.",
       })
+      .trim()
       .regex(/^[a-zA-Z0-9_]+$/, {
         message:
           "Username must contain only letters, numbers, and underscores.",
       })
       .min(4, { message: "Username must have at least 4 characters." })
-      .max(20, { message: "Username must have at most 20 characters." })
-      .trim(),
+      .max(20, { message: "Username must have at most 20 characters." }),
     password: z
       .string({
         required_error: "Please provide a password to sign up.",
@@ -53,8 +53,8 @@ export const verifyEmailAndOtpSchema = z.object({
         required_error: "Please provide an email to verify.",
         invalid_type_error: "Email must be a string.",
       })
-      .email({ message: "Please provide a valid email." })
-      .trim(),
+      .trim()
+      .email({ message: "Please provide a valid email." }),
     otp: z
       .string({
         required_error: "Please provide an OTP to verify.",
@@ -72,8 +72,8 @@ export const resendOtpSchema = z.object({
         required_error: "Please provide an email to resend OTP.",
         invalid_type_error: "Email must be a string.",
       })
-      .email({ message: "Please provide a valid email." })
-      .trim(),
+      .trim()
+      .email({ message: "Please provide a valid email." }),
   }),
 });
 

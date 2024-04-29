@@ -183,11 +183,6 @@ const resendOtp: RequestHandler = async (req, res) => {
   // Check if the user exists
   const isUser = await user.findUnique({
     where: { email },
-    select: {
-      userId: true,
-      email: true,
-      username: true,
-    },
   });
 
   // If the user does not exist, throw an error
@@ -236,18 +231,18 @@ const signIn: RequestHandler = async ({ body }, res) => {
   if (!isUser)
     throw new NotFoundError("User not found, please sign up instead.");
 
+  // Check if the user has verified their email
+  if (!isUser.isEmailVerified)
+    throw new BadRequestError(
+      "You have not verified your email, please check your email for the OTP."
+    );
+
   // Check if the password is valid
   const isValidPassword = comparePassword(password, isUser.password);
 
   // If the password is invalid, throw an error
   if (!isValidPassword)
     throw new BadRequestError("Invalid username or password.");
-
-  // Check if the user has verified their email
-  if (!isUser.isEmailVerified)
-    throw new BadRequestError(
-      "You have not verified your email, please check your email for the OTP."
-    );
 
   // Issue a new JWT token for the user
   const { accessToken, exp } = issueJwt(isUser);
