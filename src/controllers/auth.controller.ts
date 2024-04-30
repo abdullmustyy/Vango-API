@@ -229,7 +229,7 @@ const signIn: RequestHandler = async ({ body }, res) => {
 
   // If the user does not exist, throw an error
   if (!isUser)
-    throw new NotFoundError("User not found, please sign up instead.");
+    throw new NotFoundError("Invalid credentials, please sign up instead.");
 
   // Check if the user has verified their email
   if (!isUser.isEmailVerified)

@@ -112,9 +112,9 @@ const checkValidity = (schema: AnyZodObject) => {
       const errorResponse = {
         success: false,
         status: 400,
-        message: "Validation failed.",
+        message: fromError(error, { includePath: false }).toString(),
         path: req.path,
-        error: fromError(error).toString(),
+        error: `Bad Request Error: ${fromError(error, { prefix: null })}`,
         timestamp: new Date().toISOString(),
       };
 
