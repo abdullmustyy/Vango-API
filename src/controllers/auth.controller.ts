@@ -244,17 +244,17 @@ const signIn: RequestHandler = async ({ body }, res) => {
   if (!isValidPassword)
     throw new BadRequestError("Invalid username or password.");
 
-  // Issue a new JWT token for the user
-  const { accessToken, exp } = issueJwt(isUser);
-
   const {
     password: _,
-    username,
+    name,
     imageUrl,
     isEmailVerified,
     createdAt,
     ...userResponse
   } = isUser;
+
+  // Issue a new JWT token for the user
+  const { accessToken, exp } = issueJwt(userResponse);
 
   ResponseHandler.success(
     res,
