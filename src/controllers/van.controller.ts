@@ -1,12 +1,47 @@
 import { RequestHandler } from "express";
 import { PrismaClient } from "@prisma/client";
 import {
+  BadRequestError,
   InternalServerError,
   NotFoundError,
 } from "../middlewares/error.middleware";
 import { ResponseHandler } from "../middlewares/response.middleware";
+import { cloudinary } from "../utils/configs/cloudinary.config";
+import { unlink } from "fs";
 
 const { van } = new PrismaClient();
+
+export const uploadVanImage: RequestHandler = async (req, res) => {
+  // Destructure the path from the file object
+  const { path } = req.file || {};
+
+  // If an image was uploaded, the path will be available
+  if (!path) throw new BadRequestError("You have not uploaded any image of your van.");
+
+  // Upload the image to cloudinary
+  const uploadedImage = await cloudinary.uploader.upload(path, {
+    folder: "Vango/vans",
+    use_filename: true,
+    unique_filename: false,
+    overwrite: true,
+  });
+
+  // Get the image URL
+  const imageUrl = uploadedImage.secure_url;
+
+  // Delete the image from the uploads folder
+  unlink(path, (err) => {
+    if (err)
+      throw new BadRequestError("An error occurred while deleting the image.");
+  });
+
+  ResponseHandler.success(
+    res,
+    { imageUrl },
+    200,
+    "Image uploaded successfully."
+  );
+};
 
 // Get all vans
 export const getAllVans: RequestHandler = async (req, res) => {

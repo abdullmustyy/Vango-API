@@ -34,7 +34,7 @@ const uploadProfileImage: RequestHandler = async (req, res) => {
 
   // Upload the image to cloudinary
   const uploadedImage = await cloudinary.uploader.upload(path, {
-    folder: "Vango/profile-images",
+    folder: "Vango/profiles",
     use_filename: true,
     unique_filename: false,
     overwrite: true,

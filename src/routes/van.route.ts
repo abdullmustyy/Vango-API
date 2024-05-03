@@ -7,6 +7,7 @@ import {
   getVan,
   getHostVans,
   getHostVan,
+  uploadVanImage,
 } from "../controllers/van.controller";
 
 import { isAuth } from "../middlewares/auth.middleware";
@@ -17,8 +18,11 @@ import {
   getHostVansSchema,
   getVanSchema,
 } from "../middlewares/validations/van.validation";
+import { upload } from "../utils/configs/multer.config";
 
 const vanRouter = Router();
+
+vanRouter.post("/vans/image", upload.single("image"), uploadVanImage);
 
 // Get all vans route
 vanRouter.get("/vans", getAllVans);
@@ -43,11 +47,6 @@ vanRouter.get(
 );
 
 // Create a van route
-vanRouter.post(
-  "/vans/create",
-  isAuth,
-  checkValidity(createVanSchema),
-  createVan
-);
+vanRouter.post("/vans", isAuth, checkValidity(createVanSchema), createVan);
 
 module.exports = vanRouter;
