@@ -55,7 +55,7 @@ export const createVanSchema = z.object({
         required_error: "Please provide a price for the van.",
         invalid_type_error: "Price must be a number.",
       })
-      .min(1, { message: "Price must be at least 1." }),
+      .min(0, { message: "Price must be at least 0." }),
     type: z
       .string({
         required_error: "Please provide a type for the van.",
