@@ -25,7 +25,7 @@ model User {
   email           String   @unique
   imageUrl        String
   password        String
-  isEmailVerified Boolean @default(false)
+  isEmailVerified Boolean  @default(false)
   createdAt       DateTime @default(now())
 
   vans Van[]
